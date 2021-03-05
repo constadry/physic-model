@@ -110,12 +110,12 @@ int main() {
     RenderWindow window(VideoMode(640, 480), "My_gun");
 
     Cannon cannon("guns_4.jpg", 60, 0, -60, 60);
-    Ball ball("Ball.png", 0, 0, 31, 31);
+    Ball ball("Ball2.png", 0, 0, 31, 31);
 //    Object b("lol.jpg", 0, 0, 640, 480);
 
     cannon.sprite_.setPosition(0, 420);
     ball.image_.createMaskFromColor(Color(0, 0, 0), 100);
-    ball.sprite_.setPosition(25, 420);
+    ball.sprite_.setPosition(41, 435);
 //    b.sprite_.setPosition(0, 0);
 
     while (window.isOpen()) {

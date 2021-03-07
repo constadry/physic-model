@@ -54,7 +54,7 @@ public:
            const double y,
            const double width,
            const double height) :
-            Object(File, x, y, width, height) {}
+           Object(File, x, y, width, height) {}
     void move(Event &event) {
 
         static bool pr = false;
@@ -79,7 +79,6 @@ public:
                 } else{
                     y_ -= 60;
                 }
-
                 sprite_.setTextureRect(IntRect(60, y_, -60, 60));
                 pr = true; //Изменяется когда нажали
             }
@@ -124,14 +123,14 @@ int main() {
 
     RenderWindow window(VideoMode(640, 480), "My_gun");
 
-    Cannon cannon("guns_4.jpg", 60, 0, -60, 60);
-    Ball ball("Ball2.png", 0, 0, 18, 18);
-//    Object b("lol.jpg", 0, 0, 640, 480);
+    Cannon cannon("guns_3.png", 60, 0, -60, 60);
+    Ball ball("Ball.png", 0, 0, 31, 31);
+    Object background("[OC] Storm (pixel dailies).png", 0, 270, 640, 480);
 
     cannon.sprite_.setPosition(0, 420);
     ball.sprite_.setPosition(41, 435);
     ball.setX(41); ball.setY(435);
-//    b.sprite_.setPosition(0, 0);
+    background.sprite_.setPosition(0, 0);
 
     Event event{};
     Clock clock;
@@ -144,14 +143,15 @@ int main() {
 
         double time = clock.getElapsedTime().asMilliseconds(); //дать прошедшее время в микросекундах
 //        clock.restart(); //перезагружает время
-        time = time/800; //скорость игры
+        time = time/400; //скорость игры
         cout << time << endl;
 
         cannon.move(event);
-        if (ball.getY() < 460) {
-            ball.fly(time, 75, 150);
+        if (ball.getY() < 454) {
+            ball.fly(time, 70, 80);
         }
         window.clear();
+        window.draw(background.sprite_);
         window.draw(cannon.sprite_);
         window.draw(ball.sprite_);
         window.display();

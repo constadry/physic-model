@@ -54,37 +54,33 @@ public:
            const double y,
            const double width,
            const double height) :
-           Object(File, x, y, width, height) {}
-    void move(Event &event) {
-
-        static bool pr = false;
-
-        if (!pr) //переменная, определяющая "нажатость" клавиши
-        {
-            if (Keyboard::isKeyPressed(Keyboard::Up))
-            {
-                if(y_ == 120){
-                    y_ = 0;
-                } else{
-                    y_ += 60;
-                }
-                sprite_.setTextureRect(IntRect(60, y_, -60, 60));
-                pr = true; //Изменяется когда нажали
-            }
-
-            if (Keyboard::isKeyPressed(Keyboard::Down))
-            {
-                if(y_ == 0){
-                    y_ = 120;
-                } else{
-                    y_ -= 60;
-                }
-                sprite_.setTextureRect(IntRect(60, y_, -60, 60));
-                pr = true; //Изменяется когда нажали
-            }
-        }
-        else if (event.type == Event::KeyReleased) pr = false; //Изменяется, когда отпустили
+           Object(File, x, y, width, height) {
+//        sprite_.setOrigin((float) width/32, (float) height/16);
     }
+//    void move(Event &event) {
+//
+//        static bool pr = false;
+
+//        if (!pr) //переменная, определяющая "нажатость" клавиши
+//        {
+//            if (Keyboard::isKeyPressed(Keyboard::Up)) {
+//                x_ += .1; y_ += .1;
+//                double rotation = (atan2(y_, x_)) * 180 / 3.14159265;//получаем угол в радианах и переводим его в градусы
+//                std::cout << rotation << "\n";//смотрим на градусы в консольке
+//                sprite_.setRotation((float) rotation);//поворачиваем спрайт на эти градусы
+//                pr = true; //Изменяется когда нажали
+//            }
+//
+//            if (Keyboard::isKeyPressed(Keyboard::Down)) {
+//                x_ -= .1; y_ -= .1;
+//                double rotation = (atan2(y_, x_)) * 180 / 3.14159265;//получаем угол в радианах и переводим его в градусы
+//                std::cout << rotation << "\n";//смотрим на градусы в консольке
+//                sprite_.setRotation((float) rotation);//поворачиваем спрайт на эти градусы
+//                pr = true; //Изменяется когда нажали
+//            }
+//        } else if (event.type == Event::KeyPressed) pr = false; //Изменяется, когда отпустили
+//    }
+
 };
 
 class Ball : public Object {
@@ -123,11 +119,14 @@ int main() {
 
     RenderWindow window(VideoMode(640, 480), "My_gun");
 
-    Cannon cannon("guns_3.png", 60, 0, -60, 60);
+    Cannon cannon("gun.png", 60, 0, -60, 60);
+    Object stand("stand.png", 0, 0, 27, 22);
     Ball ball("Ball.png", 0, 0, 31, 31);
     Object background("[OC] Storm (pixel dailies).png", 0, 270, 640, 480);
 
+    stand.sprite_.setPosition(0, 460);
     cannon.sprite_.setPosition(0, 420);
+    ball.setX(0); ball.setY(420);
     ball.sprite_.setPosition(41, 435);
     ball.setX(41); ball.setY(435);
     background.sprite_.setPosition(0, 0);
@@ -144,16 +143,17 @@ int main() {
         double time = clock.getElapsedTime().asMilliseconds(); //дать прошедшее время в микросекундах
 //        clock.restart(); //перезагружает время
         time = time/400; //скорость игры
-        cout << time << endl;
+//        cout << time << endl;
 
         cannon.move(event);
-        if (ball.getY() < 454) {
-            ball.fly(time, 70, 80);
-        }
+//        if (ball.getY() < 454) {
+//            ball.fly(time, 70, 80);
+//        }
         window.clear();
         window.draw(background.sprite_);
         window.draw(cannon.sprite_);
-        window.draw(ball.sprite_);
+        window.draw(stand.sprite_);
+//        window.draw(ball.sprite_);
         window.display();
     }
 

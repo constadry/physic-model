@@ -5,10 +5,14 @@
 using namespace sf;
 using namespace std;
 
+const double g = 9.80665;
+
 class Object {
 protected:
 
-    double x_, y_, w_, h_;
+    double x_in_sprite, y_in_sprite,
+           width_, height_,
+           x_, y_;
 
 public:
 
@@ -19,17 +23,17 @@ public:
 
     Object(const string &File, const double x, const double y, const double width, const double height) {
         file_ = File;
-        w_ = width;
-        h_ = height;
+        width_ = width;
+        height_ = height;
 
         image_.loadFromFile("images/" + file_);
         texture_.loadFromImage(image_);
         sprite_.setTexture(texture_);
 
-        x_ = x;
-        y_ = y;
+        x_in_sprite = x;
+        y_in_sprite = y;
 
-        sprite_.setTextureRect(IntRect(x_, y_, w_, h_));
+        sprite_.setTextureRect(IntRect(x_in_sprite, y_in_sprite, width_, height_));
     }
 
     void setX(const double x) {
@@ -50,6 +54,8 @@ public:
 };
 
 class Cannon : public Object {
+private:
+    const float center_x = 20, center_y = 48;
 public:
 
     Cannon(const string &File,
@@ -58,7 +64,7 @@ public:
            const double width,
            const double height) :
             Object(File, x, y, width, height) {
-        sprite_.setOrigin(20, 48);
+        sprite_.setOrigin(center_x, center_y);
     }
 
     void move(Event &event) {
@@ -68,13 +74,13 @@ public:
         if (!pr) //переменная, определяющая "нажатость" клавиши
         {
             if (Keyboard::isKeyPressed(Keyboard::Up)) {
-                sprite_.rotate(0.1);
+                sprite_.rotate(-0.1);
                 cout << sprite_.getRotation() << '\n';
                 pr = true; //Изменяется когда нажали
             }
 
             if (Keyboard::isKeyPressed(Keyboard::Down)) {
-                sprite_.rotate(-0.1);
+                sprite_.rotate(0.1);
                 cout << sprite_.getRotation() << '\n';
                 pr = true; //Изменяется когда нажали
             }
@@ -85,7 +91,6 @@ public:
 class Ball : public Object {
 
 private:
-    const double g = 9.80665;
     double x_start;
     double y_start;
 
@@ -109,55 +114,86 @@ public:
          const double width,
          const double height) :
             Object(File, x, y, width, height) {
-        x_start = 41;
-        y_start = 435;
+        x_start = 25;
+        y_start = 430;
+        // нужно передавать начальное положение шара
     }
 
-    void fly(const double &time, double degree, double speed) {
-        change_fly_x(time, degree, speed);
-        change_fly_y(time, degree, speed);
-        sprite_.setPosition((float) x_, (float) y_);
+    void fly(const double &time, double degree, double speed, const double display_height, const double ball_height, Event &event) {
+        if (y_ < display_height-ball_height+5) {
+            change_fly_x(time, degree, speed);
+            change_fly_y(time, degree, speed);
+            sprite_.setPosition((float) x_, (float) y_);
+        }
     }
+
+    void set_start_x(const double x) {
+        x_start = x;
+    }
+
+    void set_start_y(const double y) {
+        y_start = y;
+    }
+
 };
 
 int main() {
 
-    RenderWindow window(VideoMode(640, 480), "My_gun");
+    int display_width = 640, display_height = 480;
+    int cannon_width = 60, cannon_height = 60;
+    int stand_width = 27, stand_height = 22;
+    int ball_width = 31, ball_height = 31;
+    int back_height = 750;
+    int position_back_y = back_height - display_height;
 
-    Cannon cannon("gun.png", 60, 0, -60, 60);
-    Object stand("stand.png", 0, 0, 27, 22);
-    Ball ball("Ball.png", 0, 0, 31, 31);
-    Object background("[OC] Storm (pixel dailies).png", 0, 270, 640, 480);
+    RenderWindow window(VideoMode(display_width, display_height), "My_gun");
+    Cannon cannon("gun.png", 60, 0, -cannon_width, cannon_height);
+    Object stand("stand.png", 0, 0, stand_width, stand_height);
+    Ball ball("Ball.png", 0, 0, ball_width, ball_height);
+    Object background("[OC] Storm (pixel dailies).png", 0, position_back_y, display_width, display_height);
 
-    stand.sprite_.setPosition(0, 460);
+    stand.sprite_.setPosition(0, (float) display_height-20);
 
-    cannon.sprite_.setPosition(20, 464);
-    cannon.setX(20);
-    cannon.setY(464);
+    float cannon_position_x = 20, cannon_position_y = 464;
 
-    ball.sprite_.setPosition(41, 435);
-    ball.setX(41);
-    ball.setY(435);
-    background.sprite_.setPosition(0, 0);
+    cannon.sprite_.setPosition(cannon_position_x, cannon_position_y);
+    cannon.setX(cannon_position_x);
+    cannon.setY(cannon_position_y);
+
+    ball.sprite_.setPosition(-20, -20);
+
+    bool pr = false;
 
     Event event{};
     Clock clock;
 
-
     while (window.isOpen()) {
 
         while (window.pollEvent(event)) {
-            if (event.type == Event::Closed)
+            if (event.type == Event::Closed) {
                 window.close();
+            }
         }
 
         double time = clock.getElapsedTime().asMilliseconds(); //дать прошедшее время в микросекундах
-        time = time / 400; //скорость игры
+        time = time/200; //скорость игры
 
         cannon.move(event);
 
-        if (ball.getY() < 454) {
-            ball.fly(time, 70, 80);
+        if (event.type == sf::Event::MouseButtonPressed)
+        {
+            if (event.mouseButton.button == sf::Mouse::Left)
+            {
+                pr = true;
+//                ball.sprite_.setPosition(41, 435);
+                ball.setX(25);
+                ball.setY(430);
+                clock.restart();
+            }
+        }
+
+        if (pr) {
+            ball.fly(time, 70, 50, display_height, ball_height, event);
         }
 
         window.clear();

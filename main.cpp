@@ -6,6 +6,7 @@ using namespace sf;
 using namespace std;
 
 const double g = 9.80665;
+const short int help_degree = 18;
 
 class Object {
 protected:
@@ -65,9 +66,10 @@ public:
            const double height) :
             Object(File, x, y, width, height) {
         sprite_.setOrigin(center_x, center_y);
+        sprite_.rotate(help_degree);
     }
 
-    void move(Event &event) {
+    void move(Event &event, double &ball_degree) {
 
         static bool pr = false;
 
@@ -75,13 +77,15 @@ public:
         {
             if (Keyboard::isKeyPressed(Keyboard::Up)) {
                 sprite_.rotate(-0.1);
-                cout << sprite_.getRotation() << '\n';
+                ball_degree = 360 - (sprite_.getRotation() - help_degree);
+                cout << ball_degree << "\n";
                 pr = true; //Изменяется когда нажали
             }
 
             if (Keyboard::isKeyPressed(Keyboard::Down)) {
                 sprite_.rotate(0.1);
-                cout << sprite_.getRotation() << '\n';
+                ball_degree = 360 - (sprite_.getRotation() - help_degree);
+                cout << ball_degree << "\n";
                 pr = true; //Изменяется когда нажали
             }
         } else if (event.type == Event::KeyPressed) pr = false; //Изменяется, когда отпустили
@@ -154,7 +158,7 @@ int main() {
 
     stand.sprite_.setPosition(0, (float) display_height-20);
 
-    float cannon_position_x = 20, cannon_position_y = 464;
+    float cannon_position_x = 20, cannon_position_y = 467;
 
     cannon.sprite_.setPosition(cannon_position_x, cannon_position_y);
     cannon.setX(cannon_position_x);
@@ -178,7 +182,8 @@ int main() {
         double time = clock.getElapsedTime().asMilliseconds(); //дать прошедшее время в микросекундах
         time = time/200; //скорость игры
 
-        cannon.move(event);
+        double ball_degree;
+        cannon.move(event, ball_degree);
 
         if (event.type == sf::Event::MouseButtonPressed)
         {
@@ -186,14 +191,14 @@ int main() {
             {
                 pr = true;
 //                ball.sprite_.setPosition(41, 435);
-                ball.setX(25);
+                ball.setX(50);
                 ball.setY(430);
                 clock.restart();
             }
         }
 
         if (pr) {
-            ball.fly(time, 70, 50, display_height, ball_height, event);
+            ball.fly(time, ball_degree, 50, display_height, ball_height, event);
         }
 
         window.clear();

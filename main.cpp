@@ -12,8 +12,8 @@ class Object {
 protected:
 
     double x_in_sprite, y_in_sprite,
-           width_, height_,
-           x_, y_;
+            width_, height_,
+            x_, y_;
 
 public:
 
@@ -71,24 +71,22 @@ public:
 
     void move(Event &event, double &ball_degree) {
 
-        static bool pr = false;
+        static bool move_pr = false;
 
-        if (!pr) //переменная, определяющая "нажатость" клавиши
+        if (!move_pr) //переменная, определяющая "нажатость" клавиши
         {
             if (Keyboard::isKeyPressed(Keyboard::Up)) {
                 sprite_.rotate(-0.1);
-                ball_degree = 360 - (sprite_.getRotation() - help_degree);
-                cout << ball_degree << "\n";
-                pr = true; //Изменяется когда нажали
+                ball_degree = fmod((360 - (sprite_.getRotation() - help_degree)), 360);
+                move_pr = true; //Изменяется когда нажали
             }
 
             if (Keyboard::isKeyPressed(Keyboard::Down)) {
                 sprite_.rotate(0.1);
-                ball_degree = 360 - (sprite_.getRotation() - help_degree);
-                cout << ball_degree << "\n";
-                pr = true; //Изменяется когда нажали
+                ball_degree = fmod((360 - (sprite_.getRotation() - help_degree)), 360);
+                move_pr = true; //Изменяется когда нажали
             }
-        } else if (event.type == Event::KeyPressed) pr = false; //Изменяется, когда отпустили
+        } else if (event.type == Event::KeyPressed) move_pr = false; //Изменяется, когда отпустили
     }
 };
 
@@ -97,6 +95,7 @@ class Ball : public Object {
 private:
     double x_start;
     double y_start;
+    double degree_;
 
     void change_fly_x(const double &time, double degree, double speed) {
         double new_x;
@@ -117,25 +116,23 @@ public:
          const double y,
          const double width,
          const double height) :
-            Object(File, x, y, width, height) {
-        x_start = 25;
-        y_start = 430;
-        // нужно передавать начальное положение шара
-    }
+            Object(File, x, y, width, height) {}
 
-    void fly(const double &time, double degree, double speed, const double display_height, const double ball_height, Event &event) {
+    void fly(const double &time, double degree, double speed, const double display_height, const double ball_height, Event &event, bool &pr) {
         if (y_ < display_height-ball_height+5) {
             change_fly_x(time, degree, speed);
             change_fly_y(time, degree, speed);
             sprite_.setPosition((float) x_, (float) y_);
+        } else {
+            pr = false;
         }
     }
 
-    void set_start_x(const double x) {
+    void set_x_start(const double x) {
         x_start = x;
     }
 
-    void set_start_y(const double y) {
+    void set_y_start(const double y) {
         y_start = y;
     }
 
@@ -164,12 +161,14 @@ int main() {
     cannon.setX(cannon_position_x);
     cannon.setY(cannon_position_y);
 
-    ball.sprite_.setPosition(-20, -20);
+    ball.sprite_.setPosition(-25, -25);
+    ball.set_x_start(cannon_position_x); ball.set_y_start(cannon_position_y);
 
     bool pr = false;
 
     Event event{};
     Clock clock;
+    const double cannon_len = 30;
 
     while (window.isOpen()) {
 
@@ -180,25 +179,28 @@ int main() {
         }
 
         double time = clock.getElapsedTime().asMilliseconds(); //дать прошедшее время в микросекундах
-        time = time/200; //скорость игры
+        time = time/100; //скорость игры
 
         double ball_degree;
-        cannon.move(event, ball_degree);
+        if (!pr) {
+            cannon.move(event, ball_degree);
+        }
 
         if (event.type == sf::Event::MouseButtonPressed)
         {
             if (event.mouseButton.button == sf::Mouse::Left)
             {
                 pr = true;
-//                ball.sprite_.setPosition(41, 435);
-                ball.setX(50);
-                ball.setY(430);
+                ball.setX(cannon_position_x - 20 + cannon_len*cos(ball_degree * M_PI / 180));
+                ball.setY(cannon_position_y - 22 - cannon_len*sin(ball_degree * M_PI / 180));
+                ball.set_x_start(cannon_position_x - 20 + cannon_len*cos(ball_degree * M_PI / 180));
+                ball.set_y_start(cannon_position_y - 22 - cannon_len*sin(ball_degree * M_PI / 180));
                 clock.restart();
             }
         }
 
         if (pr) {
-            ball.fly(time, ball_degree, 50, display_height, ball_height, event);
+            ball.fly(time, ball_degree, 50, display_height, ball_height, event, pr);
         }
 
         window.clear();

@@ -13,9 +13,12 @@ int cannon_width = 60, cannon_height = 60;
 int stand_width = 27, stand_height = 22;
 int ball_width = 31, ball_height = 31;
 int back_height = 750;
+int block_width = 34, block_height = 123;
 
 int position_back_y = back_height - display_height;
 float cannon_position_x = 20, cannon_position_y = 467;
+
+const double den_iron = 7870, den_wood = 530, den_land = 1000;
 
 int ball_speed = 75; // позже необходимо реализовать изменение скорости прямо внутри приложения
 
@@ -26,7 +29,8 @@ protected:
 
     double x_in_sprite, y_in_sprite,
             width_, height_,
-            x_, y_;
+            x_, y_,
+            weight_, density_;
 
 public:
 
@@ -35,21 +39,31 @@ public:
     Texture texture_;
     Sprite sprite_;
 
-    Object(const string &File, const double x, const double y, const double width, const double height) {
-        file_ = File;
-        width_ = width;
-        height_ = height;
+    Object(const string &File,
+           const double x,
+           const double y,
+           const double width,
+           const double height,
+           const double density) {
 
-        image_.loadFromFile("images/" + file_);
-        texture_.loadFromImage(image_);
-        sprite_.setTexture(texture_);
+                file_ = File;
+                width_ = width;
+                height_ = height;
 
-        x_in_sprite = x;
-        y_in_sprite = y;
+                image_.loadFromFile("images/" + file_);
+                texture_.loadFromImage(image_);
+                sprite_.setTexture(texture_);
 
-        sprite_.setTextureRect(IntRect(x_in_sprite, y_in_sprite, width_, height_));
+                x_in_sprite = x;
+                y_in_sprite = y;
 
-        x_ = y_ = 0;
+                sprite_.setTextureRect(IntRect(x_in_sprite, y_in_sprite, width_, height_));
+
+                x_ = y_ = 0;
+
+                density_ = density;
+
+                weight_ = density_*width_*height_/1000000;
     }
 
     void setX(const double x) {
@@ -67,6 +81,15 @@ public:
 //    double getY() const {
 //        return y_;
 //    }
+
+//    static void rebound() {
+//
+//    }
+
+    double get_weight() const {
+        return weight_;
+    }
+
 };
 
 class Ball : public Object {
@@ -95,13 +118,16 @@ public:
          const double x,
          const double y,
          const double width,
-         const double height) :
-            Object(File, x, y, width, height) {
-        x_start = 0;
-        y_start = 0;
-        degree_ = 0;
-        speed_ = 0;
-        hide_start_position();
+         const double height,
+         const double density) :
+            Object(File, x, y, width, height, density) {
+
+                x_start = 0;
+                y_start = 0;
+                degree_ = 0;
+                speed_ = 0;
+                hide_start_position();
+
     }
 
     void fly(const double &time, Event &event, bool &pr) {
@@ -149,8 +175,9 @@ public:
            const double x,
            const double y,
            const double width,
-           const double height) :
-            Object(File, x, y, width, height) {
+           const double height,
+           const double density) :
+           Object(File, x, y, width, height, density) {
         sprite_.setOrigin(center_x, center_y);
         sprite_.rotate(help_degree);
     }
@@ -180,17 +207,38 @@ public:
     }
 };
 
-//class Block : Object {
-//
-//};
+class Block : public Object {
+public:
+    Block(const string &File,
+           const double x,
+           const double y,
+           const double width,
+           const double height,
+           const double density) :
+            Object(File, x, y, width, height, density) {
+        sprite_.setPosition((float) 200, (float) (display_height - block_height));
+        image_.createMaskFromColor(Color(0, 0, 0), 0);
+    }
+};
+
+class Land : public Object {
+public:
+    Land(const string &File,
+          const double x,
+          const double y,
+          const double width,
+          const double height,
+          const double density) :
+            Object(File, x, y, width, height, density) {}
+};
 
 int main() {
-    RenderWindow window(VideoMode(display_width, display_height), "My_gun", sf::Style::Fullscreen);
-
-    Cannon cannon("gun.png", cannon_height, 0, -cannon_width, cannon_height);
-    Object stand("stand.png", 0, 0, stand_width, stand_height);
-    Ball ball("Ball.png", 0, 0, ball_width, ball_height);
-    Object background("[OC] Storm (pixel dailies).png", 0, position_back_y, display_width, display_height);
+    RenderWindow window(VideoMode(display_width, display_height), "My_gun");
+    Cannon cannon("gun.png", cannon_height, 0, -cannon_width, cannon_height, den_iron);
+    Object stand("stand.png", 0, 0, stand_width, stand_height, den_iron);
+    Ball ball("Ball.png", 0, 0, ball_width, ball_height, den_iron);
+    Object background("[OC] Storm (pixel dailies).png", 0, position_back_y, display_width, display_height, 0);
+    Block block("block.png", 0, 0, block_width, block_height, den_wood);
 
     stand.sprite_.setPosition(0, (float) display_height-20);
 
@@ -203,6 +251,8 @@ int main() {
     Clock clock;
 
     double ball_degree;
+
+    cout << ball.get_weight();
 
     while (window.isOpen()) {
 
@@ -245,6 +295,7 @@ int main() {
         window.draw(cannon.sprite_);
         window.draw(stand.sprite_);
         window.draw(ball.sprite_);
+        window.draw(block.sprite_);
         window.display();
     }
 

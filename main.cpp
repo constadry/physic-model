@@ -82,9 +82,9 @@ public:
 //        return y_;
 //    }
 
-//    static void rebound() {
-//
-//    }
+    static void rebound(double &speed) {
+        speed = speed*sqrt(0.7);
+    }
 
     double get_weight() const {
         return weight_;
@@ -130,12 +130,19 @@ public:
 
     }
 
-    void fly(const double &time, Event &event, bool &pr) {
-        if (y_ < display_height-height_+5) {
-            change_fly_x(time);
-            change_fly_y(time);
-            sprite_.setPosition((float) x_, (float) y_);
-        } else {
+    void fly(const double &time, Event &event, bool &pr, Clock &clock) {
+        change_fly_x(time);
+        change_fly_y(time);
+        sprite_.setPosition((float) x_, (float) y_);
+
+        if (y_ >= display_height-height_+5) {
+            rebound(speed_);
+            set_x_start(x_);
+            set_y_start(y_);
+            clock.restart();
+        }
+
+        if (speed_ < 2 || x_ > display_width) {
             pr = false;
         }
     }
@@ -217,7 +224,6 @@ public:
            const double density) :
             Object(File, x, y, width, height, density) {
         sprite_.setPosition((float) 200, (float) (display_height - block_height));
-        image_.createMaskFromColor(Color(0, 0, 0), 0);
     }
 };
 
@@ -267,9 +273,8 @@ int main() {
 
         if (!pr) {
             cannon.move(event, ball);
+            ball_degree = ball.get_degree();
         }
-
-        ball_degree = ball.get_degree();
 
         if (event.type == sf::Event::MouseButtonPressed)
         {
@@ -287,7 +292,7 @@ int main() {
         }
 
         if (pr) {
-            ball.fly(time, event, pr);
+            ball.fly(time, event, pr, clock);
         }
 
         window.clear();

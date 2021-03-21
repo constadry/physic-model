@@ -8,21 +8,21 @@ using namespace std;
 const double g = 9.80665;
 const short int help_degree = 18;
 
-int display_width = 640, display_height = 480;
-int cannon_width = 60, cannon_height = 60;
-int stand_width = 27, stand_height = 22;
-int ball_width = 31, ball_height = 31;
-int back_height = 750;
-int block_width = 34, block_height = 123;
+int display_width = 640, display_height = 480; //  Ширина и высота окна
+int cannon_width = 60, cannon_height = 60; //  Ширина и высота пушки
+int stand_width = 27, stand_height = 22; //  Ширина и высота подставки
+int ball_width = 31, ball_height = 31; // Ширина и высота мяча
+int back_height = 750; // Высота фона
+int block_width = 34, block_height = 123; // Ширина и высота коробки(коробок?)
 
-int position_back_y = back_height - display_height;
-float cannon_position_x = 20, cannon_position_y = 467;
+int position_back_y = back_height - display_height; //????
+float cannon_position_x = 20, cannon_position_y = 467; // Стартовая позиция пушки
 
-const double den_iron = 7870, den_wood = 530, den_land = 1000;
+const double den_iron = 7870, den_wood = 530, den_land = 1000; //????
 
 int ball_speed = 75; // позже необходимо реализовать изменение скорости прямо внутри приложения
 
-const double cannon_len = 30;
+const double cannon_len = 30; // Длина пушки
 
 class Object {
 protected:
@@ -289,6 +289,17 @@ int main() {
         if (pr) {
             ball.fly(time, event, pr);
         }
+        
+        if(event.type == Event::MouseWheelScrolled){ // Изменение скорости полета шарика
+            if(event.mouseWheelScroll.delta > 0 && ball_speed < 100) // При кручении колесика вверх delta > 0 -> увеличиваем скорость
+                ball_speed++;                                       // Так же макс скорость шарика сейчас 100
+            else if(event.mouseWheelScroll.delta < 0 && ball_speed > 20) // Аналогично уменьшаем скорость до 20(минимум)
+                ball_speed--;
+            event.mouseWheelScroll.delta = 0;
+        }
+
+        if(Keyboard::isKeyPressed(Keyboard::Escape)) // Окно закрывается при нажатии клавиши esc
+            break;
 
         window.clear();
         window.draw(background.sprite_);

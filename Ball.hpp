@@ -55,11 +55,20 @@ public:
             set_x_start(x_); // новые стартовые координаты
             set_y_start(y_);
             clock.restart(); // функция координат зависит от времени
+            std::cout << speed_ << " " << time << "\n";
         }
 
         if (speed_ < 2 || x_ > display_width) { // примерная скорость, когда нужно остановиться шарику
             pr = false;
         }
+    }
+
+    static void change_speed(Event &event){
+        if(event.mouseWheelScroll.delta > 0 && ball_speed < 99) // При кручении колесика вверх delta > 0 -> увеличиваем скорость
+            ball_speed++;                                       // Так же макс скорость шарика сейчас 100
+        else if(event.mouseWheelScroll.delta < 0 && ball_speed > 20) // Аналогично уменьшаем скорость до 20(минимум)
+            ball_speed--;
+        event.mouseWheelScroll.delta = 0;
     }
 
     void hide_start_position() {
@@ -78,12 +87,16 @@ public:
         degree_ = degree;
     }
 
+    double get_degree() const {
+        return degree_;
+    }
+
     void set_speed(const double speed) {
         speed_ = speed;
     }
 
-    double get_degree() const {
-        return degree_;
+    double get_speed() const {
+        return speed_;
     }
 
 };

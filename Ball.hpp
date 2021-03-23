@@ -55,7 +55,6 @@ public:
             set_x_start(x_); // новые стартовые координаты
             set_y_start(y_);
             clock.restart(); // функция координат зависит от времени
-            std::cout << speed_ << " " << time << "\n";
         }
 
         if (speed_ < 2 || x_ > display_width) { // примерная скорость, когда нужно остановиться шарику

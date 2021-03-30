@@ -9,6 +9,7 @@ int main() {
     Ball ball("Ball.png", 0, 0, ball_width, ball_height, den_iron);
     Object background("[OC] Storm (pixel dailies).png", 0, position_back_y, display_width, display_height, 0);
     Block block("block.png", 0, 0, block_width, block_height, den_wood);
+    Land land("land.bmp", 0, 0, display_width, 6, den_land, k_land);
 
     Numbers number_of_speed_1("numbers.png", 64, 64, 51, 51, 0); // изначально цифра 7, т.к. ball_speed = 75
     Numbers number_of_speed_2("numbers.png", 10, 10, 51, 51, 0); // изначально цифра 5, т.к. ball_speed = 75
@@ -48,7 +49,7 @@ int main() {
         }
 
         if (pr) {
-            ball.fly(time, event, pr, clock); // передаю время, чтобы перезапускать его внутри функции
+            ball.fly(time, event, pr, clock, land); // передаю время, чтобы перезапускать его внутри функции
         }
 
         number_of_speed_1.change_numbers(ball_speed / 10); // Смена первой цифры на экране при изменении скорости шарикка

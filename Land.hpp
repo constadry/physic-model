@@ -14,8 +14,9 @@ public:
          const double y,
          const double width,
          const double height,
-         const double density) :
-            Object(File, x, y, width, height, density) {}
+         const double density,
+         const double recovery_coefficient) :
+            Object(File, x, y, width, height, density, recovery_coefficient) {}
 };
 
 #endif //PHYSIC_LAND_HPP

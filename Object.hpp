@@ -22,6 +22,7 @@ int position_back_y = back_height - display_height;
 
 float cannon_position_x = 20, cannon_position_y = 467;
 const double den_iron = 7870, den_wood = 530, den_land = 1000;
+const double k_land = 0.95; // коэффициент восстановления для земли
 
 int ball_speed = 75; // позже необходимо реализовать изменение скорости прямо внутри приложения
 
@@ -36,7 +37,9 @@ protected:
     double x_in_sprite, y_in_sprite,
             width_, height_,
             x_, y_,
-            weight_, density_;
+            weight_, // масса объекта, необходимо для расчётов скоростей
+            density_, // плотность объекта, нужно для расчета массы
+            recovery_coefficient_;  // коэффициент восстановления, нужен для отскока
 
 public:
 
@@ -50,7 +53,8 @@ public:
            const double y,
            const double width,
            const double height,
-           const double density) {
+           const double density,
+           const double recovery_coefficient = -1) {
 
         file_ = File;
         width_ = width;
@@ -70,6 +74,8 @@ public:
         density_ = density;
 
         weight_ = density_*width_*height_/1000000;
+
+        recovery_coefficient_ = recovery_coefficient;
     }
 
     void setX(const double x) {
@@ -88,12 +94,16 @@ public:
 //        return y_;
 //    }
 
-    static void rebound(double &speed) {
-        speed = speed*sqrt(0.7);
+    void rebound(Object &object) {
+        // метод должен быть виртуальным, возможно
     }
 
     double get_weight() const {
         return weight_;
+    }
+
+    double get_coef_rec() const {
+        return recovery_coefficient_;
     }
 
 };

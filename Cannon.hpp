@@ -51,6 +51,7 @@ public:
                 ball.set_y_start(cannon_position_y - 22 - cannon_len * sin(ball_degree * M_PI / 180));
                 ball.set_degree(ball_degree);
                 ball.set_speed(ball_speed);
+                ball.set_speed_start(ball_speed);
                 clock.restart();
             }
         }

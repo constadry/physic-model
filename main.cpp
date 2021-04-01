@@ -49,7 +49,7 @@ int main() {
         }
 
         if (pr) {
-            ball.fly(time, event, pr, clock, land); // передаю время, чтобы перезапускать его внутри функции
+            ball.fly(time, event, pr, clock, land, block); // передаю время, чтобы перезапускать его внутри функции
         }
 
         number_of_speed_1.change_numbers(ball_speed / 10); // Смена первой цифры на экране при изменении скорости шарикка

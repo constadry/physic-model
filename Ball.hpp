@@ -7,6 +7,7 @@
 
 #include "Object.hpp"
 #include "Land.hpp"
+#include "Block.hpp"
 
 class Ball : public Object {
 
@@ -33,6 +34,40 @@ private:
         speed_ = sqrt(pow(speed_start_*cos(degree_ * M_PI / 180), 2) + pow((speed_start_*sin(degree_ * M_PI / 180) - g*time), 2));
     }
 
+    double dot_prod_with(const Object &object) {
+        double ball_vx = x_ - object.getX();
+        double ball_vy = y_ - object.getY();
+        double block_vx = 0; // перпендикулярен земле
+        double block_vy = -object.getY();
+
+        return ball_vx*block_vx + ball_vy*block_vy;
+    }
+
+    double dist_high_point(const Object &object) {
+        return sqrt(pow(x_ - object.getX() + 20, 2) + pow(y_ - object.getY(), 2));
+    }
+
+    double triangular_height(const Object &object) {
+        double height;
+
+        double ball_vx_1 = object.getX() - x_;
+        double ball_vy_1 = object.getY() - y_;
+
+        double ball_vx_2 = object.getX() - x_;
+        double ball_vy_2 = display_height - y_;
+
+        double a = sqrt(pow(ball_vx_1, 2) + pow(ball_vy_1, 2));
+        double b = sqrt(pow(ball_vx_2, 2) + pow(ball_vy_2, 2));
+
+        double cos_a_b = (ball_vx_1*ball_vx_2 + ball_vy_1*ball_vy_2)/(a*b);
+
+        double sin_a_b = sqrt(1 - pow(cos_a_b, 2));
+
+        height = sin_a_b*a*b/object.get_height();
+
+        return height;
+    }
+
 public:
 
     Ball(const string &File,
@@ -52,21 +87,34 @@ public:
 
     }
 
-    void fly(const double &time, Event &event, bool &pr, Clock &clock, const Land &land) {
+    void fly(const double &time,
+             Event &event,
+             bool &pr,
+             Clock &clock,
+             const Land &land,
+             const Block &block) {
+
         change_fly_x(time);
         change_fly_y(time);
         change_speed(time);
         sprite_.setPosition((float) x_, (float) y_);
 
         if (y_ >= display_height-height_+5) { // земля..
-            rebound(land); // уменшение скорости по некоторому закону
-            set_x_start(x_); // новые стартовые координаты
-            set_y_start(y_);
-            set_speed_start(speed_);
-            clock.restart(); // функция координат зависит от времени
+            rebound(clock, land);
         }
 
-        if (speed_start_ < 0.1 || x_ > display_width) { // примерная скорость, когда нужно остановиться шарику
+        if (dot_prod_with(block) <= 0.0) {
+            if (triangular_height(block) < 20) {
+                rebound(clock, block);
+                degree_ = 180 - degree_;
+            }
+        } else {
+            if (dist_high_point(block) < 1) {
+                rebound(clock, block);
+            }
+        }
+
+        if (speed_start_ < 0.1 || x_ > display_width || x_ < 0) { // примерная скорость, когда нужно остановиться шарику
             pr = false;
         }
     }
@@ -111,9 +159,17 @@ public:
         return speed_;
     }
 
-    void rebound(const Land &land) {
-        speed_ = speed_ - (1 + land.get_coef_rec())*land.get_weight()*speed_/(land.get_weight() + weight_);
+    void less_speed(const Object &object) {
+        speed_ = speed_ - (1 + object.get_coef_rec()) * object.get_weight() * speed_ / (object.get_weight() + weight_);
         cout << speed_ << "\n";
+    }
+
+    void rebound(Clock &clock, const Object &object) {
+        less_speed(object); // уменшение скорости по некоторому закону
+        set_x_start(x_); // новые стартовые координаты
+        set_y_start(y_);
+        set_speed_start(speed_);
+        clock.restart(); // функция координат зависит от времени
     }
 
 };

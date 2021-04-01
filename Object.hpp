@@ -18,6 +18,7 @@ int stand_width = 27, stand_height = 22;
 int ball_width = 31, ball_height = 31;
 int back_height = 750;
 int block_width = 34, block_height = 123;
+//int block_width = 26, block_height = 98;
 int position_back_y = back_height - display_height;
 
 float cannon_position_x = 20, cannon_position_y = 467;
@@ -82,24 +83,24 @@ public:
         x_ = x;
     }
 
-//    double getX() const {
-//        return x_;
-//    }
+    double getX() const {
+        return x_;
+    }
 
     void setY(const double y) {
         y_ = y;
     }
 
-//    double getY() const {
-//        return y_;
-//    }
-
-    void rebound(Object &object) {
-        // метод должен быть виртуальным, возможно
+    double getY() const {
+        return y_;
     }
 
     double get_weight() const {
         return weight_;
+    }
+
+    double get_height() const {
+        return height_;
     }
 
     double get_coef_rec() const {

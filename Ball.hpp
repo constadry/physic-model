@@ -17,6 +17,7 @@ private:
     double degree_;
     double speed_;
     double speed_start_;
+    bool reb_was = false;
 
     void change_fly_x(const double &time) {
         double new_x;
@@ -26,16 +27,16 @@ private:
 
     void change_fly_y(const double &time) {
         double new_y;
-        new_y = y_start - speed_start_ * time * sin(degree_ * M_PI / 180) + g * time * time / 2;
+        new_y = y_start - speed_start_ * time * sin(degree_ * M_PI / 180) + Const::g * time * time / 2;
         setY(new_y);
     }
 
     void change_speed(const double &time) {
-        speed_ = sqrt(pow(speed_start_*cos(degree_ * M_PI / 180), 2) + pow((speed_start_*sin(degree_ * M_PI / 180) - g*time), 2));
+        speed_ = sqrt(pow(speed_start_*cos(degree_ * M_PI / 180), 2) + pow((speed_start_*sin(degree_ * M_PI / 180) - Const::g*time), 2));
     }
 
     double dot_prod_with(const Object &object) {
-        double ball_vx = x_ - object.getX();
+        double ball_vx = x_ - object.getX() + 22;
         double ball_vy = y_ - object.getY();
         double block_vx = 0; // перпендикулярен земле
         double block_vy = -object.getY();
@@ -44,17 +45,19 @@ private:
     }
 
     double dist_high_point(const Object &object) {
-        return sqrt(pow(x_ - object.getX() + 20, 2) + pow(y_ - object.getY(), 2));
+        return sqrt(pow(x_ - object.getX() + 22, 2) + pow(y_ - object.getY(), 2));
     }
 
     double triangular_height(const Object &object) {
-        double height;
+        double height, ox;
 
-        double ball_vx_1 = object.getX() - x_;
+        ox = object.getX() - 22;
+
+        double ball_vx_1 = ox - x_;
         double ball_vy_1 = object.getY() - y_;
 
-        double ball_vx_2 = object.getX() - x_;
-        double ball_vy_2 = display_height - y_;
+        double ball_vx_2 = ox - x_;
+        double ball_vy_2 = Const::display_height - y_;
 
         double a = sqrt(pow(ball_vx_1, 2) + pow(ball_vy_1, 2));
         double b = sqrt(pow(ball_vx_2, 2) + pow(ball_vy_2, 2));
@@ -99,27 +102,32 @@ public:
         change_speed(time);
         sprite_.setPosition((float) x_, (float) y_);
 
-        if (y_ >= display_height-height_+5) { // земля..
+        if (y_ >= Const::display_height - height_ + 5) { // земля..
             rebound(clock, land);
         }
 
-        if (dot_prod_with(block) <= 0.0) {
-            if (triangular_height(block) < 20) {
-                rebound(clock, block);
-                degree_ = 180 - degree_;
-            }
-        } else {
-            if (dist_high_point(block) < 1) {
-                rebound(clock, block);
+        if (!reb_was) {
+            if (dot_prod_with(block) < 0.0) {
+                if (triangular_height(block) <= 1.5) {
+                    cout << triangular_height(block) << "\n";
+                    rebound(clock, block);
+                    degree_ = 180 - degree_;
+                    reb_was = true;
+                }
+            } else {
+                if (dist_high_point(block) == 0) {
+                    rebound(clock, block);
+                }
             }
         }
 
-        if (speed_start_ < 0.1 || x_ > display_width || x_ < 0) { // примерная скорость, когда нужно остановиться шарику
+        if (speed_start_ < 0.05 || x_ > Const::display_width || x_ < 0) { // примерная скорость, когда нужно остановиться шарику
             pr = false;
         }
+
     }
 
-    static void change_speed(Event &event){
+    static void change_speed(Event &event, int& ball_speed){
         if(event.mouseWheelScroll.delta > 0 && ball_speed < 99) // При кручении колесика вверх delta > 0 -> увеличиваем скорость
             ball_speed++;                                       // Так же макс скорость шарика сейчас 100
         else if(event.mouseWheelScroll.delta < 0 && ball_speed > 20) // Аналогично уменьшаем скорость до 20(минимум)
@@ -155,13 +163,19 @@ public:
         speed_ = speed;
     }
 
+    void set_status_rebound() {
+        if (reb_was) {
+            reb_was = false;
+        }
+    }
+
     double get_speed() const {
         return speed_;
     }
 
     void less_speed(const Object &object) {
         speed_ = speed_ - (1 + object.get_coef_rec()) * object.get_weight() * speed_ / (object.get_weight() + weight_);
-        cout << speed_ << "\n";
+        cout << "speed: " << speed_ << "\n";
     }
 
     void rebound(Clock &clock, const Object &object) {

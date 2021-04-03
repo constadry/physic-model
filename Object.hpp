@@ -8,26 +8,26 @@
 #include <SFML/Graphics.hpp>
 #include <cmath>
 
-const double g = 9.80665;
+namespace Const {
+    const double g = 9.80665; // Постоянная g, используется для физики
 
-const short int help_degree = 18;
-int display_width = 640, display_height = 480;
+    const short int help_degree = 18; // Постоянная для Костиных трюков
 
-int cannon_width = 60, cannon_height = 60;
-int stand_width = 27, stand_height = 22;
-int ball_width = 31, ball_height = 31;
-int back_height = 750;
-int block_width = 34, block_height = 123;
-//int block_width = 26, block_height = 98;
-int position_back_y = back_height - display_height;
+// Постоянные для формы объктов(ширина и длина спрайтов)
+    const int display_width = 640, display_height = 480;
+    const int cannon_width = 60, cannon_height = 60;
+    const int stand_width = 27, stand_height = 22;
+    const int ball_width = 31, ball_height = 31;
+    const int back_height = 750;
+    const int block_width = 34, block_height = 123;
+    const int position_back_y = back_height - display_height;
 
-float cannon_position_x = 20, cannon_position_y = 467;
-const double den_iron = 7870, den_wood = 530, den_land = 1000;
-const double k_land = 0.95; // коэффициент восстановления для земли
-
-int ball_speed = 75; // позже необходимо реализовать изменение скорости прямо внутри приложения
-
-const double cannon_len = 30;
+    const float cannon_position_x = 20, cannon_position_y = 467; // Позиция пушки
+    const double den_iron = 7870, den_wood = 530, den_land = 1000; // Видимо плотнось(если что-то поправьте)
+    const double k_land = 0.95; // коэффициент восстановления для земли
+    const double cannon_len = 30;
+    //int block_width = 26, block_height = 98;   ////XZ
+}
 
 using namespace sf;
 using namespace std;

@@ -3,23 +3,47 @@
 
 int main() {
 
-    RenderWindow window(VideoMode(display_width, display_height), "My_gun");
-    Cannon cannon("gun.png", cannon_height, 0, -cannon_width, cannon_height, den_iron);
-    Object stand("stand.png", 0, 0, stand_width, stand_height, den_iron);
-    Ball ball("Ball.png", 0, 0, ball_width, ball_height, den_iron);
-    Object background("[OC] Storm (pixel dailies).png", 0, position_back_y, display_width, display_height, 0);
-    Block block("block.png", 0, 0, block_width, block_height, den_wood);
-    Land land("land.bmp", 0, 0, display_width, 6, den_land, k_land);
+    RenderWindow window(VideoMode(Const::display_width, Const::display_height),"My_gun"); // Создание окна
 
+    Cannon cannon("gun.png",
+                  Const::cannon_height,
+                  0,
+                  -Const::cannon_width,
+                  Const::cannon_height,
+                  Const::den_iron); // Инициализация объекта "дуло пушки"
+
+    Object stand("stand.png",
+                 0,
+                 0,
+                 Const::stand_width,
+                 Const::stand_height,
+                 Const::den_iron); // Инициализация объекта "подставка пушки"
+
+    Ball ball("Ball.png",
+              0,
+              0, Const::ball_width,
+              Const::ball_height,
+              Const::den_iron); // Инициализация объекта "ядро"
+
+    Object background("[OC] Storm (pixel dailies).png",
+                      0,
+                      Const::position_back_y,
+                      Const::display_width,
+                      Const::display_height,
+                      0); // Инициализация объекта "фон"
+
+    Block block("block.png",0,0 ,Const::block_width, Const::block_height, Const::den_wood); // Инициализация объекта "ящик"
+
+    Land land("land.bmp",0,0, Const::display_width,6, Const::den_land, Const::k_land);// Инициализация объекта "поверхность"
     Numbers number_of_speed_1("numbers.png", 64, 64, 51, 51, 0); // изначально цифра 7, т.к. ball_speed = 75
     Numbers number_of_speed_2("numbers.png", 10, 10, 51, 51, 0); // изначально цифра 5, т.к. ball_speed = 75
 
     number_of_speed_2.sprite_.setPosition(51, 0); // Ставим sprite второй цифры на нужную позицию
 
-    stand.sprite_.setPosition(0, (float) display_height-20);
+    stand.sprite_.setPosition(0, (float) Const::display_height - 20);
 
-    cannon.sprite_.setPosition(cannon_position_x, cannon_position_y);
-    cannon.setX(cannon_position_x); cannon.setY(cannon_position_y);
+    cannon.sprite_.setPosition(Const::cannon_position_x, Const::cannon_position_y);
+    cannon.setX(Const::cannon_position_x); cannon.setY(Const::cannon_position_y);
 
     bool pr = false;
 
@@ -27,6 +51,8 @@ int main() {
     Clock clock;
 
     double ball_degree;
+
+    int ball_speed = 75; // стартовое значение
 
     while (window.isOpen()) {
 
@@ -40,12 +66,16 @@ int main() {
         time = time/100000; //скорость игры
 
         if (!pr) {
-            cannon.move(event, ball);
-            if(event.type == Event::MouseWheelScrolled){ // Изменение скорости полета шарика
-                Ball::change_speed(event);
-            }
             ball_degree = ball.get_degree();
-            Cannon::shoot(event, clock, pr, ball, ball_degree);
+            if (ball_degree > 90) {
+                ball_degree = 180 - ball_degree;
+                ball.set_degree(ball_degree);
+            }
+            cannon.move(event, ball);
+            if(event.type == Event::MouseWheelScrolled) { // Изменение скорости полета шарика
+                Ball::change_speed(event, ball_speed);
+            }
+            Cannon::shoot(event, clock, pr, ball, ball_degree, ball_speed);
         }
 
         if (pr) {

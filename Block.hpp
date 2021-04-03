@@ -16,10 +16,11 @@ public:
           const double height,
           const double density) :
             Object(File, x, y, width, height, density) {
-        sprite_.setPosition((float) 300, (float) (display_height - block_height));
+        sprite_.setPosition((float) 300, (float) (Const::display_height - Const::block_height));
         x_ = 300;
-        y_ = display_height - block_height;
-        recovery_coefficient_ = 0.9;
+        y_ = Const::display_height - Const::block_height;
+        recovery_coefficient_ = 0.15;
+        weight_ *= 4;
     }
 };
 

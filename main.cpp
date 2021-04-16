@@ -5,6 +5,8 @@ int main() {
 
     RenderWindow window(VideoMode(Const::display_width, Const::display_height),"My_gun"); // Создание окна
 
+I_DONT_KNOW_HOW_IT_IS_WORKS:
+
     Cannon cannon("gun.png",
                   Const::cannon_height,
                   0,
@@ -54,6 +56,8 @@ int main() {
 
     int ball_speed = 75; // стартовое значение
 
+    bool falling_of_block = false;
+    bool f_b_1 = true;
     while (window.isOpen()) {
 
         while (window.pollEvent(event)) {
@@ -62,10 +66,10 @@ int main() {
             }
         }
 
-        double time = clock.getElapsedTime().asMicroseconds(); //дать прошедшее время в микросекундах
+        double time = (double ) clock.getElapsedTime().asMicroseconds(); //дать прошедшее время в микросекундах
         time = time/100000; //скорость игры
 
-        if (!pr) {
+        if (!pr && f_b_1) {
             ball_degree = ball.get_degree();
             if (ball_degree > 90) {
                 ball_degree = 180 - ball_degree;
@@ -79,11 +83,24 @@ int main() {
         }
 
         if (pr) {
-            ball.fly(time, event, pr, clock, land, block); // передаю время, чтобы перезапускать его внутри функции
+            ball.fly(time, event, pr, clock, land, block, falling_of_block); // передаю время, чтобы перезапускать его внутри функции
         }
 
         number_of_speed_1.change_numbers(ball_speed / 10); // Смена первой цифры на экране при изменении скорости шарикка
         number_of_speed_2.change_numbers(ball_speed % 10);// Смена второй цифры на экране при изменении скорости шарикка
+
+        if(falling_of_block){
+            block.fall((float) ball.get_speed_reb());
+        }
+
+        if(block.angel > 90){
+            falling_of_block = false;
+            f_b_1 = false;
+        }
+
+        if(Keyboard::isKeyPressed(Keyboard::R)){
+            goto I_DONT_KNOW_HOW_IT_IS_WORKS;
+        }
 
         if (Keyboard::isKeyPressed(Keyboard::Escape)) // Окно закрывается при нажатии клавиши esc
             break;

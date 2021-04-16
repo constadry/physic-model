@@ -25,7 +25,7 @@ public:
 
     void move(Event &event, Ball &ball) {
         double ball_degree;
-        if (ball.get_degree() < 90) {
+        if (ball.get_degree() < 89) {
             if (Keyboard::isKeyPressed(Keyboard::Up) || Keyboard::isKeyPressed(Keyboard::W)) {
                 sprite_.rotate(-0.1);
                 ball_degree = fmod((360 - (sprite_.getRotation() - Const::help_degree)), 360);
